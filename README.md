@@ -22,4 +22,8 @@
       2. 본문전송
       3. 송신완료
    
-네트워크 관련 알아둬야할 지식
+캡슐화
+IP       L3 - Packet - IP Packet
+Ethernet L2 
+
+
