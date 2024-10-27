@@ -1,18 +1,20 @@
-import fs from 'fs'
-import express from 'express'
-import https from 'https'
-import cors from 'cors'
+import fs from 'fs';
+import express from 'express';
+import http2 from 'http2';
+import cors from 'cors';
+import cookieParser from 'cookie-parser'; // cookie-parser 추가
 
-const key = fs.readFileSync('../localhost.decrypted.key', 'utf8')
-const cert = fs.readFileSync('../localhost.crt', 'utf8')
+const key = fs.readFileSync('../localhost.decrypted.key', 'utf8');
+const cert = fs.readFileSync('../localhost.crt', 'utf8');
 
-const app = express()
+const app = express();
 
 // 요청 본문 파싱 미들웨어 추가
 app.use(express.json()); // JSON 요청 본문 파싱
 app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
+app.use(cookieParser()); // cookie-parser 추가
 
-let users: { username: string; password: string }[] = []; // 사용자 정보를 저장할 배열
+let users = []; // 사용자 정보를 저장할 배열
 
 // 모든 출처에서의 요청을 허용하는 CORS 설정
 app.use(cors({
@@ -49,17 +51,11 @@ app.post('/login', (req, res) => {
   res.status(401).send('Invalid credentials');
 });
 
+// HTTP/2 서버 생성
+const server = http2.createSecureServer({ key, cert }, app);
 
-const server = https.createServer({ key, cert }, app)
+const port = 3000;
 
-const port = 3000
-
-app.listen(port, () => {
-  console.log(`server is listening on http://localhost:${port}`)
-})
-/*
 server.listen(port, () => {
-  console.log(`server is listening on https://localhost:${port}`)
-})
-
- */
+  console.log(`Server is listening on https://localhost:${port}`);
+});
